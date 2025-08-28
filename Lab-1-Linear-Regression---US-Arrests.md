@@ -49,7 +49,7 @@ library(tidyverse)
 library(GGally)  # For pairwise scatter plots
 ```
 
-# Data
+# Data Access
 
 The **USArrests** dataset contains the following variables: - `Murder`:
 Murder arrests (per 100,000 residents) - `Assault`: Assault arrests (per
