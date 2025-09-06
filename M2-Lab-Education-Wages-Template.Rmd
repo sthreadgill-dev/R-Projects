@@ -1,0 +1,228 @@
+---
+output:
+  html_document:
+    theme: readable
+    df_print: kable
+    highlight: tango
+---
+
+```{r setup, include=FALSE}
+# do not change this chunk
+knitr::opts_chunk$set(echo=T, eval=T, fig.width=6, fig.height=4, warning=F, message=F )
+```
+
+# M2 Lab 2 Submission
+
+**Susan Threadgill**
+
+# Overview
+
+In this assignment, we will conduct an analysis that addresses the following research question:
+
+> **What is the relationship between education and wages?**
+
+Education is widely recognized as a key determinant of earnings potential. Higher education levels often lead to better job opportunities, increased productivity, and higher wages. Understanding the relationship between education and wages can provide insights into labor market dynamics, income inequality, and policy decisions regarding education funding.
+
+------------------------------------------------------------------------
+
+# Load Libraries
+
+You will need a library called `ISLR` for this assignment which is contained in the package "ISLR". Before loading your libraries, use the code below to install the "ISLR" package.You can do that by typing the code below in your console or by using the Tools dropdown menu. You will not need to do this again.
+
+```{r, echo=T,eval=F, message=FALSE, warning=FALSE}
+install.packages("ISLR")
+```
+
+Now load the libraries
+
+```{r, echo=T, message=FALSE, warning=FALSE}
+# Load the libraries
+library(tidyverse)  
+library(ISLR)       # Contains the Wage dataset
+```
+
+------------------------------------------------------------------------
+
+# Data
+
+### Reading the Dataset into R
+
+The `Wage` dataset is included in the **ISLR** package. To load it into your R session, use:
+
+```{r, echo=T}
+# Load the Wage dataset
+data(Wage)
+```
+
+#### **Explanation of the Code**
+
+-   The `data()` function loads a dataset that is **preloaded within an R package**.
+-   The dataset **Wage** is already stored in the ISLR package, so calling `data(Wage)` makes it available for use in your R session.
+-   The dataset is stored as a **data frame** and can be used immediately.
+
+### Preview the data
+
+```{r,echo=T}
+head(Wage)
+glimpse(Wage)
+```
+
+### The key variables in this analysis:
+
+-   wage: Hourly wage (dependent variable)
+-   education: Education level (factor with 5 categories)
+    -   \< HS Grad (less than high school)
+    -   HS Grad (high school graduate)
+    -   Some College
+    -   College Grad
+    -   Advanced Degree
+-   age: Age of the individual
+
+### Renaming the dataset
+
+One final thing about the dataset: I find it confusing that the dataframe Wage (upper case) also contains a variable called wage (lower case). There is no way to rename a dataframe in R but I can create a new one with a new name, and drop the original one:
+
+```{r, echo=T}
+# copy Wage dataframe to a new dataframe with a new name
+wageData <- Wage  
+
+# drop the original Wage data set
+rm(Wage) 
+
+glimpse(wageData)
+```
+
+------------------------------------------------------------------------
+
+# Creating New Variables
+
+To analyze education’s relationship on wages, we will create new variables:
+
+1.  **Dummy variables for each education level**\
+    Since `education` is a categorical factor, we need to create separate dummy variables (binary indicators) for each level.
+
+2.  **A "College Graduate" variable**\
+    This variable will be `1` if a person has a **College Grad** or **Advanced Degree**, and `0` otherwise.
+
+### Creating Dummy Variables in R
+
+We use `mutate()` from the `dplyr` package which already included in the `tidyverse` library you loaded:
+
+```{r, echo=T}
+# Create dummy variables for each education level
+wageData <- wageData %>%
+  mutate(edu_hsgrad = ifelse(education == "2. HS Grad", 1, 0),
+         edu_somecollege = ifelse(education == "3. Some College", 1, 0),
+         edu_collegegrad = ifelse(education == "4. College Grad", 1, 0),
+         edu_advdegree = ifelse(education == "5. Advanced Degree", 1, 0),
+         edu_lesshs = ifelse(education == "1. < HS Grad", 1, 0))
+
+# Create College Graduate indicator variable
+wageData <- wageData %>%
+  mutate(college_graduate = ifelse(education %in% c("4. College Grad", "5. Advanced Degree"), 1, 0))
+
+# View changes
+head(wageData)
+```
+
+### Checking Dummy Variable Frequencies
+
+To ensure the dummy variables were created correctly, run the code below to count the number of observations in each education level category and make sure it matches the original `education` variable:
+
+```{r, echo=T}
+# Examine counts in original variable
+wageData %>% select(education) %>% table()
+
+# Compare to counts in the new variables
+wageData %>% select(edu_hsgrad) %>% table()
+wageData %>% select(edu_somecollege) %>% table()
+wageData %>% select(edu_collegegrad) %>% table()
+wageData %>% select(edu_advdegree) %>% table()
+wageData %>% select(edu_lesshs) %>% table()
+
+# Here is another way you could check. Since all of the new variables are 0 or 1, you can just sum each up and see how many total 1's you have
+wageData %>%
+  summarize(hs_grad = sum(edu_hsgrad),
+            some_college = sum(edu_somecollege),
+            college_grad = sum(edu_collegegrad),
+            adv_degree = sum(edu_advdegree),
+            less_hs = sum(edu_lesshs),
+            total = n())
+
+```
+
+------------------------------------------------------------------------
+
+# Question 1
+
+## 1.1
+
+Let's start by just looking to see if the mean wage is different by education level. Just looking at the means by education level, do you think that college graduates earn more than those who did not graduate from college?
+
+(Hint: Pipe `wageData` into the `group_by` function then use `summarize` to get the mean wage. If you are stuck, ask chatGPT: "I have dataset called wageData that contains the variables education and wage. Give me the R tidyverse code that will give me the mean wage for each education level.")
+
+```{r}
+wageData %>% 
+  group_by(education) %>% 
+  summarize(mean(wage))
+  
+
+```
+
+**Based on the results, the average wage for college graduates is higher than those who did not graduate indicating college graduates do earn more then non-college graduates.**
+
+## 1.2
+
+Run a regression predicting wages using only college graduate as the predictor. Interpret the magnitude of the coefficient on college graduate. What does this coefficient tell us about the difference in wages between college graduates and non-graduates? Reminder: college_graduate = 1 if college graduate or advanced degree, 0 if any other education level:
+
+```{r}
+predict_wage_grad <- lm(wage ~ college_graduate, wageData)
+summary(predict_wage_grad)
+
+```
+
+**From this data we understand that the Intercept of 98.246 is the mean wage for those without a college degree which would be \$98,246, and the coefficiant for college_graduate is 36.339 which means on average someone with a college degree will earn \$36,339 more than someone without a degree. We can see that the R-squared (coefficient of determination) is 0.177 which indicates that 17.7% of the variance in wage is explained by whether someone is or isn't a college graduate.**
+
+# Question 2
+
+## 2.1
+
+Add age as a predictor to the regression in Question 1. Interpret the magnitude of the coefficient on age.
+
+```{r}
+
+predict_wage_grad_age <- lm(wage ~ college_graduate + age, wageData)
+summary(predict_wage_grad_age)
+```
+
+**The coefficient for age is 0.59 which we can interpret to mean that for every year older a person is their wage would increase by 0.59 or about \$590.**
+
+## 2.2
+
+How much does the coefficient on college_graduate change compared to the coefficient in Question 1? What does that tell you about the relationship between age and college_graduate?
+
+**When college_graduate is a single predictor it's coefficiant is 36.34, but when age is added as a second predictor it's coefficiant is 35.2 which is a difference of 1.14 or roughly a 3% decrease. This tells us that age and college graduation status are not highly correlated.**
+
+# Question 3
+
+Run the same regression from Question 2, except this time replace college_graduate with all of the education level dummies. Completing less than a high school degree (`edu_lesshs`) should be the omitted category. Interpret each of the education level coefficients. How do these results compare to means you calculated in Question 1.1?
+
+```{r}
+predict_wage_grad_age <- lm(wage ~ edu_hsgrad + edu_somecollege + edu_collegegrad + edu_advdegree + age, wageData)
+summary(predict_wage_grad_age)
+
+```
+
+**Replacing the college_graduate variable with dummy variables for each education level (omitting less than a high school degree) gives a more detailed view of wage differences.**
+
+**The intercept (60.34) represents the predicted wage (in thousands) for someone with less than a high school degree. The coefficients show the average wage increases compared to that group. We can also see their predicted wages by adding the corresponding coefficient with the intercept.**
+
+-   *High School Graduate*: **+11.44** or +\$11.44K, with an overall predicated wage of **71.78**.
+
+-   *Some College:* **+24.17** or +\$24.17K, with an overall predicated wage of **84.51**.
+
+-   *College Graduate:* **+39.78** or +\$39.78K, with an overall predicated wage of **100.10**.
+
+-   *Advanced Degree:* **+64.99** or \$64.99K, with an overall predicated wage of **125.33**.
+
+**These values are consistent with the group means from Question 1.1, in that the pattern of wages increasing with each level of education, but we can see that our model is underestimating group averages for every single category when compared to the group means in Question 1.1. Age still has a smaller effect, with each additional year adding about 0.59 to predicted wage. The R-squared value increased to 0.2593, meaning about 26% of the variation in wage is explained by education and age.**
