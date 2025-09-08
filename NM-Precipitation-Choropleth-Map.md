@@ -207,4 +207,4 @@ snapshot)</figcaption>
 ### Full interactive map
 
 [Click here to view the interactive precipitation
-map](precip_leaflet.html)
+map](https://o4yk5w-susan-t.shinyapps.io/New_Mexico_Precipitation_Maps/)
