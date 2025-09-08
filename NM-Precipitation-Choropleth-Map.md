@@ -1,13 +1,10 @@
 New Mexico Precipitation Choropleth Maps
 ================
 Susan Threadgill
-2025-09-08
 
-## As part of my studies to better understand R Graphics Packages, I have delved into building both a static and interactive Choropleth map of the annual precipitation in New Mexico, by county, in 2022.
+### As part of my studies to better understand R Graphics Packages, I have delved into building both a static and interactive Choropleth map of the annual precipitation in New Mexico, by county, in 2022.
 
-I chose this specifically because I live in New Mexico, and am trying to
-stay up to date on our environment. Rainfall and water are two major
-concerns for New Mexicans given our desert landscape and climate change.
+### I chose this specifically because I live in New Mexico, and am trying to stay up to date on our environment. rainfall/water are major concerns for New Mexicans given our desert landscape and climate change.
 
 ``` r
 # Libraries
@@ -105,9 +102,9 @@ Basic_map <- ggplot(nm_counties_by_precipitation) +
 ggsave("precip_map.png", Basic_map, width=6, height=8)
 ```
 
-\#Generated Map ![Precipitation Map](precip_map.png)
+# Generated Map ![Precipitation Map](precip_map.png)
 
-\#Creating interactive map to show county names
+# Creating interactive map to show county names
 
 ``` r
 library(leaflet)
@@ -131,7 +128,7 @@ pal <- colorNumeric(
   domain = nm_counties_by_precipitation$Precipitation)
 ```
 
-\#Get bounding box for map and add safe label points inside counties
+# Get bounding box for map and add safe label points inside counties
 
 ``` r
 # Get bounding box
@@ -141,7 +138,7 @@ bb <- st_bbox(nm_counties_by_precipitation)
 county_labels <- st_point_on_surface(nm_counties_by_precipitation)
 ```
 
-\#Create Interactive Map
+# Create Interactive Map
 
 ``` r
 interactive_nm_map <- leaflet(nm_counties_by_precipitation,
@@ -194,7 +191,7 @@ interactive_nm_map <- leaflet(nm_counties_by_precipitation,
   )
 ```
 
-\#Generate Map
+# Generate Map
 
 ### Static snapshot of interactive leaflet map
 
