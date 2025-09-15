@@ -1,5 +1,5 @@
 ---
-title: "ggplot2 4.0.0 Beginner Practice (Play & Explore)"
+title: "ggplot2 4.0 Beginner Practice (Play & Explore)"
 output: github_document
 ---
 
