@@ -27,28 +27,6 @@ league.ave <- tapply(X = ave.so,
 
 league.year <- as.numeric(names(league.ave))
 
-
-  # REQUIRED ADDITIONAL CODE
-
-      # This line takes the vector of team 
-      # averages, 'ave.so', and appends it to 
-      # the dataset 'Teams' as a new variable.
-
-  # HOW IT WORKS
-
-      # When you assign values to a non-
-      # existent variable by using '$' on an 
-      # existing dataset, you create a new, 
-      # permanent variable in the dataset.
-
-      # For example:
-      # 'dat$new_variable <- some_vector'
-
-      # Dataset 'dat' would now have a new 
-      # variable, called 'new_variable', 
-      # that contains the values of
-      # vector 'some_vector'.
-
 Teams$ave.so <- ave.so
 
 team_list <- Teams %>%
